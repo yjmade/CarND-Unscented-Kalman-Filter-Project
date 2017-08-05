@@ -15,7 +15,7 @@ UKF::UKF() {
   use_laser_ = true;
 
   // if this is false, radar measurements will be ignored (except during init)
-  use_radar_ = false;
+  use_radar_ = true;
 
   // initial state vector
   x_ = VectorXd(5);
@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = Eigen::MatrixXd::Identity(5,5);
 //  std::cout<<"P_"<<P_<<"\n";
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+  std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.7;
+  std_yawdd_ = 0.3;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -98,13 +98,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     is_initialized_=true;
 
   }else{
-    double delta_t=(meas_package.timestamp_-time_us_)/1000./1000.;
-    while(delta_t>0.1)
-    {
-      double dt = 0.05;
-      Prediction(dt);
-      delta_t -= dt;
-    }
+    float delta_t=(meas_package.timestamp_ - time_us_) / 1000000.0;
     Prediction(delta_t);
     if(meas_package.sensor_type_==MeasurementPackage::LASER){
       UpdateLidar(meas_package);
@@ -394,7 +388,7 @@ void UKF::SigmaPointPrediction(double delta_t) {
     Xsig_pred_(3,i) = yaw_p;
     Xsig_pred_(4,i) = yawd_p;
   }
-  
+
 }
 
 void UKF::PredictMeanAndCovariance() {
@@ -474,7 +468,7 @@ void UKF::PredictLidarMeasurement(VectorXd &z_out, MatrixXd &S_out, MatrixXd &Tc
   z_out = z_pred;
   S_out = S;
   Tc_out = Tc;
-  
+
   return;
-  
+
 }
